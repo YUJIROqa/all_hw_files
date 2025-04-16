@@ -1,0 +1,239 @@
+# Работа с файлами и обработка ошибок в Python
+
+## 1. Основы работы с файлами
+
+**Определение:** Файловые операции позволяют программе сохранять и получать данные из файлов на диске. Python предоставляет встроенные функции и методы для работы с файлами различных типов.
+
+**Основные операции с файлами:**
+- Открытие файла: `open(filename, mode)`
+- Чтение из файла: `read()`, `readline()`, `readlines()`
+- Запись в файл: `write()`, `writelines()`
+- Закрытие файла: `close()` или использование контекстного менеджера `with`
+
+**Разбор кода:**
+```python
+# Базовый способ
+data_file = open(".vscode/lesson13tools/data.txt", "r")
+print(data_file.read())
+data_file.close()
+
+# Рекомендуемый способ с конструкцией with
+with open(".vscode/lesson13tools/my_info.txt", "w") as file:
+    file.write("Имя: Иван\n")
+    file.write("Возраст: 25\n")
+    file.write("Хобби: Программирование\n")
+
+# Чтение из файла
+with open(".vscode/lesson13tools/my_info.txt", "r") as file:
+    content = file.read()
+    print(content)
+```
+
+**Аналогия:**
+Работу с файлами можно сравнить с книгой в библиотеке:
+- Открытие файла (`open`) — получение книги из хранилища
+- Чтение (`read`) — просмотр содержимого книги
+- Запись (`write`) — добавление заметок в книгу
+- Закрытие (`close` или `with`) — возврат книги в хранилище
+
+## 2. Режимы открытия файлов
+
+**Основные режимы:**
+- `"r"` — чтение (по умолчанию)
+- `"w"` — запись (создает новый файл или перезаписывает существующий)
+- `"a"` — добавление (дописывает в конец файла)
+- `"r+"` — чтение и запись
+- `"b"` — бинарный режим (для работы с бинарными файлами)
+
+**Разбор кода:**
+```python
+# Режим записи - создает новый файл или перезаписывает существующий
+with open(new_dir, 'w') as new_file:
+    new_file.write('Это текстовый файл')
+
+# Режим добавления - для data1.txt в цикле
+for data_line in read_file():
+    with open(new_file_path, 'a') as new_file:
+        data_line = data_line.replace('.', '').replace(',', '')
+        new_file.write(data_line)
+```
+
+## 3. Различные способы чтения файлов
+
+**Основные методы чтения:**
+- `read()` — читает весь файл как одну строку
+- `readline()` — читает одну строку
+- `readlines()` — читает все строки в список
+- Построчное чтение в цикле `for line in file`
+
+**Разбор кода:**
+```python
+def read_file(file_path):
+    with open(file_path, 'r') as file:
+        return file.read()
+    
+def read_line(file_path):
+    with open(file_path, 'r') as file:
+        return file.readline()
+    
+def read_lines(file_path):
+    with open(file_path, 'r') as file:
+        return file.readlines()
+    
+def read_for_loop(file_path):
+    result = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            result.append(line)
+    return result
+```
+
+**Примечание:**
+При чтении строк из файла они сохраняют символы конца строки (`\n`). Их можно удалить с помощью методов `strip()` или `rstrip('\n')`.
+
+## 4. Работа с путями к файлам
+
+**Модуль os.path:**
+- `os.path.dirname(__file__)` — путь к директории текущего файла
+- `os.path.join(dir, filename)` — объединение пути и имени файла
+- `os.path.exists(path)` — проверка существования файла
+- `os.path.abspath(path)` — получение абсолютного пути
+
+**Разбор кода:**
+```python
+import os
+
+base_path = os.path.dirname(__file__)  # Путь к текущей директории
+file_path = os.path.join(base_path, 'data.txt')  # Объединение пути
+new_file_path = os.path.join(base_path, 'data1.txt')  # Ещё один пример
+
+# Проверка существования файла
+check_new_file = os.path.exists(new_dir)
+print(check_new_file)
+
+# Получение абсолютного пути
+full_path = os.path.abspath(new_dir)
+print(full_path)
+```
+
+**Аналогия:**
+Работа с путями похожа на описание маршрута до определённого места:
+- Относительный путь — "иди прямо, потом поверни налево, потом направо"
+- Абсолютный путь — "улица Ленина, дом 10, квартира 5"
+- `os.path.join()` — корректное соединение частей адреса с учётом разделителей на разных ОС
+
+## 5. Обработка ошибок при работе с файлами
+
+**Основные типы исключений при работе с файлами:**
+- `FileNotFoundError` — файл не найден
+- `PermissionError` — нет доступа к файлу
+- `IOError` — общая ошибка ввода-вывода
+- `UnicodeDecodeError` — ошибка при декодировании содержимого файла
+
+**Разбор кода:**
+```python
+def safe_read_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            return file.read()
+    except FileNotFoundError as err1:
+        return err1
+    
+def safe_write_file(filename, data):
+    try:
+        with open(filename, 'w') as file:
+            file.write(data)
+            return True
+    except Exception as error:
+        print(f'Ошибка при записи в файл {filename}: {error}')
+        return False
+```
+
+**Аналогия:**
+Обработка исключений при работе с файлами похожа на план действий при неудачном походе в магазин:
+- Пытаемся найти товар (файл) — блок `try`
+- Если товар не найден (файл не существует) — блок `except FileNotFoundError`
+- Если магазин закрыт (нет доступа к файлу) — блок `except PermissionError`
+- Для любых других проблем — общий `except Exception`
+
+## 6. Создание универсальных функций для работы с файлами
+
+**Объединение операций с обработкой ошибок:**
+```python
+def file_operation(filename, operation, data=None):
+    try:
+        if operation == 'read':
+            with open(filename, 'r') as file:
+                return file.read()
+        elif operation == 'write':
+            with open(filename, 'w') as file:
+                file.write(data)
+            return True
+    except Exception as error:
+        print(f'Ошибка при выполнении операции {operation}: {error}')
+        return None if operation == 'read' else False
+```
+
+**Использование функции:**
+```python
+# Чтение файла
+content = file_operation('path/to/file.txt', 'read')
+
+# Запись в файл
+success = file_operation('path/to/file.txt', 'write', 'Новые данные')
+```
+
+## 7. Практические примеры
+
+**Создание файла с пользовательской информацией:**
+```python
+def create_user_file(filename, name, age, hobby):
+    with open(filename, 'w') as user_profile:
+        user_profile.writelines([f'Name:{name}\n', f'Age:{age}\n', f'Hobby:{hobby}'])
+
+create_user_file('user_profile.txt', 'Egor', 23, 'Sport')
+
+with open('user_profile.txt', 'r') as user_profile:
+    print(user_profile.read())
+```
+
+**Обработка содержимого при чтении:**
+```python
+def read_file():
+    with open(file_path, "r") as data_file:
+       for line in data_file.readlines():  
+           yield line
+
+for data_line in read_file():
+    with open(new_file_path, 'a') as new_file:
+        data_line = data_line.replace('.', '').replace(',', '')
+        new_file.write(data_line)
+```
+
+## 8. Ключевые выводы
+
+1. **Безопасное открытие и закрытие файлов:**
+   - Используйте конструкцию `with` для автоматического закрытия файла
+   - Это гарантирует, что файл будет закрыт даже при возникновении ошибок
+
+2. **Правильная работа с путями:**
+   - Используйте `os.path.join()` для корректного объединения путей
+   - Применяйте `os.path.dirname(__file__)` для получения пути к текущему скрипту
+   - Проверяйте существование файла с помощью `os.path.exists()`
+
+3. **Обработка ошибок:**
+   - Оборачивайте операции с файлами в блоки `try-except`
+   - Обрабатывайте специфические исключения (`FileNotFoundError`, `PermissionError`)
+   - Предоставляйте информативные сообщения об ошибках и значения по умолчанию
+
+4. **Выбор правильного метода чтения:**
+   - `read()` для небольших файлов целиком
+   - `readline()` или цикл для построчной обработки больших файлов
+   - `readlines()` для работы со всеми строками как со списком
+
+5. **Режимы открытия файлов:**
+   - `'r'` для чтения, `'w'` для записи, `'a'` для добавления
+   - Используйте `'w'`, только если готовы перезаписать существующий файл
+   - Для сохранения данных без потери предыдущих используйте `'a'`
+
+Работа с файлами — одна из самых важных операций в программировании, позволяющая программам хранить и обрабатывать данные между запусками. Правильная обработка ошибок и использование безопасных практик помогает создавать надежные программы, которые корректно работают с файловой системой.

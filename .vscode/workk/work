@@ -1,0 +1,29 @@
+Мы проверяли UTM-метки следующим образом:
+
+1. Через параметры URL:
+```
+https://test.studybay.com/reg/?site_id=site.id&session_id=session&client_id=client&utm_source=0&utm_medium=1&utm_campaign=2&utm_content=3&utm_term=4
+```
+
+2. Через консоль браузера для добавления куки _fbc:
+```javascript
+document.cookie = "_fbc=fb.1.1619123456789.IwAR1234abcd; path=/; domain=test.studybay.com";
+```
+
+3. Проверка существующих кук через консоль:
+```javascript
+// Удаление существующих куки (если нужно)
+document.cookie = "utm_medium=; path=/; domain=test.studybay.com; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+document.cookie = "utm_campaign=; path=/; domain=test.studybay.com; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+
+// Установка новых кук
+document.cookie = "utm_medium=1; path=/; domain=test.studybay.com";
+document.cookie = "utm_campaign=2; path=/; domain=test.studybay.com";
+document.cookie = "utm_content=3; path=/; domain=test.studybay.com";
+document.cookie = "utm_term=4; path=/; domain=test.studybay.com";
+document.cookie = "utm_source=0; path=/; domain=test.studybay.com";
+```
+
+4. После установки кук мы проверяли их наличие через вкладку Application → Cookies в инструментах разработчика браузера (F12).
+
+5. Затем выполняли регистрацию, чтобы проверить, передаются ли метки в систему аналитики и сохраняются ли в базе данных.
