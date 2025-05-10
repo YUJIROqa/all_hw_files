@@ -12,5 +12,6 @@
     "terminal.integrated.env.windows": {
         "VIRTUAL_ENV_DISABLE_PROMPT": "0"
     },
-    "python.terminal.activateEnvInCurrentTerminal": true
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "explorer.compactFolders": false
 } 

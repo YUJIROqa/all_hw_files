@@ -1,0 +1,5 @@
+mag1: LOH
+mag2: hleb
+mag3: hyi
+mag4: LOH
+mag3: pizda

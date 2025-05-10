@@ -1,0 +1,326 @@
+# Конспект: Автоматизированное тестирование с Playwright
+
+## Подтема 1: Основы Playwright и настройка тестового окружения
+
+### Теория
+Playwright - это инструмент для автоматизации браузеров, разработанный Microsoft. Он позволяет писать надежные сквозные тесты для веб-приложений на разных языках программирования, включая Python.
+
+Основные преимущества Playwright:
+- Поддержка всех современных браузеров (Chromium, Firefox, WebKit)
+- Автоматическое ожидание элементов без явных задержек
+- Возможность эмуляции мобильных устройств
+- Изоляция контекста браузера для каждого теста
+- Мощный API для работы с DOM-элементами
+
+Базовая структура Playwright-теста:
+```python
+from playwright.sync_api import Page, expect
+import re
+from time import sleep
+
+def test_name(page: Page):
+    page.goto('https://example.com')  # Открытие страницы
+    # Действия с элементами и проверки
+```
+
+### Разбор кода
+В первом тесте мы проверяли заголовок страницы:
+
+```python
+def test_assert_title(page: Page):
+    page.goto('https://www.qa-practice.com/')
+    expect(page).to_have_title('Home Page | QA Practice')
+    sleep(3)
+```
+
+В этом тесте:
+1. Открывается сайт qa-practice.com
+2. Проверяется, что заголовок страницы соответствует ожидаемому
+3. Добавляется задержка для визуального подтверждения
+
+### Поиск локаторов для задания
+При работе с заголовком страницы не требовалось искать локаторы, так как мы использовали метод `to_have_title()`, который работает с заголовком всей страницы (title в HTML).
+
+Как проверить заголовок страницы в DevTools:
+1. Открыть DevTools (F12 или правая кнопка мыши -> "Inspect")
+2. В элементах найти тег `<title>` в секции `<head>`
+3. Или выполнить в консоли: `document.title`
+
+## Подтема 2: Локаторы в Playwright - поиск элементов на странице
+
+### Теория
+Локаторы - главный способ находить элементы на странице в Playwright. В отличие от селекторов, локаторы автоматически ждут появления элементов и повторяют попытки поиска.
+
+Playwright предлагает несколько способов поиска элементов:
+- `page.get_by_role()` - поиск по роли элемента (кнопка, ссылка и т.д.)
+- `page.get_by_text()` - поиск по видимому тексту
+- `page.get_by_label()` - поиск по связанной метке (label)
+- `page.get_by_placeholder()` - поиск по атрибуту placeholder
+- `page.get_by_alt_text()` - поиск по альтернативному тексту (для изображений)
+- `page.get_by_title()` - поиск по атрибуту title
+- `page.get_by_test_id()` - поиск по data-testid
+- `page.locator()` - поиск по CSS или XPath селектору
+
+### Разбор кода
+В тесте с кнопкой мы искали элемент и проверяли результат:
+
+```python
+def test_1(page: Page):
+    page.goto('https://www.qa-practice.com/elements/button/simple')
+    button = page.locator('//*[@class="btn btn-primary"]').click()
+    sleep(3)
+    text_result = page.get_by_text('Submitted')
+    expect(text_result).to_be_visible()
+```
+
+### Поиск локаторов для задания
+Для поиска кнопки и результирующего текста мы использовали DevTools:
+
+1. **Поиск кнопки**:
+   - Открыли DevTools (F12)
+   - Использовали инструмент выбора элемента (стрелка в левом верхнем углу DevTools)
+   - Нашли кнопку на странице и увидели её HTML: `<input type="submit" class="btn btn-primary" value="Click" id="submit-id-submit">`
+   - Выбрали XPath локатор: `//*[@class="btn btn-primary"]`
+
+2. **Поиск результирующего текста**:
+   - После клика по кнопке нашли в DevTools элемент с текстом "Submitted"
+   - Использовали локатор `page.get_by_text('Submitted')` для его поиска
+
+Важно: при поиске XPath в DevTools можно использовать функцию поиска по XPath, нажав Ctrl+F в панели Elements и введя XPath-выражение, начинающееся с `//*`.
+
+## Подтема 3: Взаимодействие с элементами веб-страницы
+
+### Теория
+После того как мы научились находить элементы на странице, следующий шаг - это взаимодействие с ними. Playwright предоставляет множество методов для имитации пользовательских действий:
+
+1. **Клики**:
+   - `.click()` - обычный клик
+   - `.dblclick()` - двойной клик
+   - `.click({ button: 'right' })` - правый клик
+
+2. **Работа с формами**:
+   - `.fill(value)` - заполнение текстового поля
+   - `.type(text)` - альтернативный способ ввода текста
+   - `.press_sequentially(text, delay)` - ввод с задержкой
+   - `.select_option(value)` - выбор опции в выпадающем списке
+   - `.check()` / `.uncheck()` - установка/снятие флажка (checkbox)
+
+3. **Работа с клавиатурой**:
+   - `.press('key')` - нажатие клавиши
+   - `.press('Enter')` - нажатие Enter для отправки формы
+
+### Разбор кода
+В тесте с текстовым полем мы использовали взаимодействие с формой:
+
+```python
+def test_2(page: Page):
+    page.goto('https://www.qa-practice.com/elements/input/simple')
+    field = page.get_by_placeholder('Submit me')
+    text = 'Playwright_Test'
+    field.fill(text)
+    field.press('Enter')
+    result = page.locator('.result-text')
+    expect(result).to_have_text(text)
+    sleep(3)
+```
+
+### Поиск локаторов для задания
+Для поиска поля ввода и проверки результата:
+
+1. **Поиск поля ввода**:
+   - В DevTools нашли input с placeholder: `<input type="text" placeholder="Submit me" class="form-control" id="id_text_string" name="text_string">`
+   - Использовали локатор по placeholder: `page.get_by_placeholder('Submit me')`
+
+2. **Поиск результирующего текста**:
+   - После отправки формы нашли в DevTools элемент с результатом: `<p class="result-text">Playwright_Test</p>`
+   - Использовали CSS-селектор: `page.locator('.result-text')`
+
+Важно: в этом тесте мы сохранили введенный текст в переменную `text`, чтобы потом проверить, что именно этот текст отображается в результате.
+
+## Подтема 4: Проверки и ожидания (Assertions & Waits)
+
+### Теория
+Playwright обеспечивает встроенное автоматическое ожидание многих действий, но иногда требуется явно ждать определенных условий или проверять состояние страницы. Для этого существуют:
+
+1. **Проверки (Assertions)**:
+   - `expect(page).to_have_title()` - проверка заголовка страницы
+   - `expect(element).to_be_visible()` - проверка видимости элемента
+   - `expect(element).to_have_text()` - проверка текста элемента
+   - `expect(element).to_be_checked()` - проверка состояния чекбокса
+   - `expect(element).not_to_be_checked()` - проверка, что чекбокс не отмечен
+   - `expect(element).to_have_value()` - проверка значения поля
+
+2. **Явные ожидания**:
+   - `page.wait_for_selector()` - ожидание появления элемента
+   - `page.wait_for_navigation()` - ожидание завершения навигации
+   - `page.wait_for_load_state()` - ожидание загрузки страницы
+
+3. **Получение состояний элементов**:
+   - `element.is_checked()` - проверка состояния чекбокса (возвращает True/False)
+   - `element.is_visible()` - проверка видимости (возвращает True/False)
+   - `element.text_content()` - получение текстового содержимого
+
+### Разбор кода
+В тесте с чекбоксом мы проверяли его состояние и результат:
+
+```python
+def test_3(page: Page):
+    page.goto('https://www.qa-practice.com/elements/checkbox/single_checkbox')
+    box = page.locator('.form-check-input')
+    is_checking = box.is_checked()
+    print(f'Checkbox is checked: {is_checking}')
+    box.click()
+    new_state = box.is_checked()
+    print(f'Checkbox is checked: {new_state}')
+    submit = page.locator('.btn.btn-primary')
+    submit.click()
+    sleep(3)
+    result_text = page.locator('.result-text')
+    actual_text = result_text.text_content()
+    print(f'Actual text: {actual_text}')
+```
+
+### Поиск локаторов для задания
+Для работы с чекбоксом и получения результата:
+
+1. **Поиск чекбокса**:
+   - В DevTools нашли элемент input с типом checkbox: `<input class="form-check-input" type="checkbox" id="id_checkbox" name="checkbox">`
+   - Использовали CSS-селектор: `page.locator('.form-check-input')`
+
+2. **Поиск кнопки Submit**:
+   - Нашли кнопку: `<input type="submit" class="btn btn-primary" value="Submit" id="submit-id-submit">`
+   - Использовали CSS-селектор: `page.locator('.btn.btn-primary')`
+
+3. **Поиск результирующего текста**:
+   - После отправки формы нашли элемент с результатом: `<p class="result-text">Clicked!</p>`
+   - Использовали CSS-селектор: `page.locator('.result-text')`
+
+Важно: при работе с чекбоксами метод `is_checked()` позволяет получить текущее состояние (отмечен/не отмечен), а метод `box.click()` изменяет это состояние.
+
+## Подтема 5: Различные способы поиска элементов (локаторы и селекторы)
+
+### Теория
+Playwright предлагает множество способов поиска элементов, и важно выбрать наиболее подходящий для конкретной ситуации.
+
+1. **По ID** (самый надежный):
+   - CSS: `#submit-id-submit`
+   - XPath: `//*[@id="submit-id-submit"]`
+   - Код: `page.locator('#submit-id-submit')`
+
+2. **По классу**:
+   - CSS: `.btn.btn-primary`
+   - XPath: `//*[@class="btn btn-primary"]`
+   - Код: `page.locator('.btn.btn-primary')`
+
+3. **По атрибуту**:
+   - CSS: `[type="submit"]`
+   - XPath: `//*[@type="submit"]`
+   - Код: `page.locator('[type="submit"]')`
+
+4. **По тексту**:
+   - Код: `page.get_by_text('Click')`
+   - XPath: `//button[text()="Click"]`
+
+5. **По placeholder**:
+   - Код: `page.get_by_placeholder('Submit me')`
+   - XPath: `//*[@placeholder="Submit me"]`
+
+6. **По роли**:
+   - Код: `page.get_by_role('button', name='Click')`
+
+### Разбор кода
+В последнем тесте мы использовали разные способы поиска одной и той же кнопки:
+
+```python
+def test_4(page: Page):
+    page.goto('https://www.qa-practice.com/elements/button/simple')
+    try:
+        button1 = page.locator('.btn.btn-primary')
+        button1.click()
+        print('Rutton1 successfully clicked')
+    except Exception as error:
+        print(f'Impossible to click Button1. The reason is{error}')
+    
+    # Аналогично для других локаторов...
+```
+
+### Поиск локаторов для задания
+Для поиска одной и той же кнопки разными способами:
+
+1. **Исследование кнопки в DevTools**:
+   - Открыли DevTools и нашли кнопку: `<input type="submit" class="btn btn-primary" value="Click" id="submit-id-submit">`
+   - Из этого HTML получили несколько способов поиска:
+     * Класс: `.btn.btn-primary`
+     * ID: `#submit-id-submit`
+     * Тип и значение: `[type="submit"][value="Click"]`
+     * XPath по классу: `//*[@class="btn btn-primary"]`
+     * XPath по ID: `//*[@id="submit-id-submit"]`
+     * XPath по типу: `//*[@type="submit"]`
+
+2. **Применение разных локаторов**:
+   - В тесте использовали 5 разных способов поиска одной и той же кнопки
+   - Для локатора по тексту использовали `.first`, чтобы выбрать первый найденный элемент
+
+## Практические советы по поиску локаторов в DevTools
+
+### Общая методика поиска локаторов:
+
+1. **Открытие DevTools**:
+   - Правый клик на элементе -> Inspect (Исследовать)
+   - Или F12 -> использовать стрелку выбора элемента
+
+2. **Анализ HTML-структуры**:
+   - Найти уникальные идентификаторы (id, class, name)
+   - Обратить внимание на атрибуты (type, value, placeholder)
+   - Проверить текстовое содержимое элемента
+
+3. **Проверка локатора в DevTools**:
+   - В панели Elements нажать Ctrl+F
+   - Ввести CSS-селектор (например, `.btn.btn-primary`) или XPath (`//*[@id="submit-id-submit"]`)
+   - DevTools подсветит все найденные элементы и покажет их количество
+
+4. **Выбор оптимального локатора**:
+   - Сначала пробовать искать по id (если есть)
+   - Затем по другим уникальным атрибутам
+   - Избегать сложных путей в DOM, которые могут измениться
+
+### Примеры поиска разных типов элементов:
+
+1. **Кнопки**:
+   - `page.get_by_role('button', name='Click')`
+   - `page.locator('.btn.btn-primary')`
+   - `page.get_by_text('Click').filter(has_role='button')`
+
+2. **Текстовые поля**:
+   - `page.get_by_placeholder('Submit me')`
+   - `page.get_by_label('Text string')`
+   - `page.locator('#id_text_string')`
+
+3. **Чекбоксы**:
+   - `page.locator('.form-check-input')`
+   - `page.get_by_label('I agree')`
+   - `page.locator('#id_checkbox')`
+
+4. **Результаты/Тексты**:
+   - `page.get_by_text('Submitted')`
+   - `page.locator('.result-text')`
+
+### Рекомендации по выбору локаторов:
+
+1. **Приоритеты выбора локаторов** (от более к менее стабильным):
+   - ID (`#id_element`)
+   - Семантические локаторы (`get_by_role`, `get_by_label`)
+   - Атрибуты (`[data-testid="login-button"]`)
+   - Классы (`.btn.btn-primary`)
+   - XPath (только если другие методы не работают)
+
+2. **Избегайте нестабильных локаторов**:
+   - XPath с полными путями (`/html/body/div[2]/div/form/button`)
+   - Индексы, которые могут измениться (`div:nth-child(3)`)
+   - Локаторы, зависящие от текста, который может меняться
+
+3. **Используйте комбинированные локаторы для уточнения**:
+   - `page.locator('form').get_by_role('button')`
+   - `page.get_by_text('Submit').filter(has_class='btn-primary')`
+
+Эти навыки поиска и использования локаторов - ключевой аспект успешного автоматизированного тестирования с Playwright. Практика и понимание HTML-структуры страниц помогут вам выбирать наиболее стабильные и эффективные локаторы для ваших тестов.

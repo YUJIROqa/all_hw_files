@@ -2,7 +2,7 @@
 
 1. Через параметры URL:
 ```
-https://test.studybay.com/reg/?site_id=site.id&session_id=session&client_id=client&utm_source=0&utm_medium=1&utm_campaign=2&utm_content=3&utm_term=4
+https://test.studybay.com/reg/?site_id=studybay.live&session_id=session&client_id=client&utm_source=0&utm_medium=1&utm_campaign=2&utm_content=3&utm_term=4
 ```
 
 2. Через консоль браузера для добавления куки _fbc:
